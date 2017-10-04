@@ -3,10 +3,10 @@
 /**
 * Simple PHP Form
 *
-* Open source automatic PHP form handling module with validation, helpers, warnings and more. 
+* Open source automatic PHP form handling module with validation, helpers, warnings and more.
 * Supports text fields, text areas, dropdowns, checkboxes, radio buttons and hidden fields.
 * Validation flags supported: required, email, phone, number, lengthmax *, lengthmin *, sizemax *, sizemin *
-* 
+*
 * See ./examples/basic.php and ./examples/advanced.php and ./examples/centered.php for usage.
 *
 * @author Nathaniel Sabanski
@@ -21,7 +21,7 @@ class SimplePHPForm
 	const STATE_FAIL = 3;
 	const STATE_ERROR = 4;
 	const STATE_DUPLICATE = 5;
-	
+
 	var $state = 0;
 	var $input_list = array();
 
@@ -33,7 +33,7 @@ class SimplePHPForm
 	var $message_fail = 'Oops! We had trouble accepting your form. Details below.';
 	var $message_error = 'You have discovered an internal error. Please contact us!';
 	var $message_duplicate = 'You are already registered. If there is an issue, please contact us.';
-	
+
 	/**
 	* Constructor.
 	* @param string $url_action Override re-direct URL.
@@ -60,14 +60,14 @@ class SimplePHPForm
 		$data_default = $data;
 
 		// Get form submission data from $_POST if it exists.
-		if(isset($_POST['simplephpform_'.$name]))  
+		if(isset($_POST['simplephpform_'.$name]))
 		{
-			$data = $_POST['simplephpform_'.$name]; 
+			$data = $_POST['simplephpform_'.$name];
 			$this->state = self::STATE_VALIDATE; // We've got data during this pass. Form should be validated.
 		}
 
 		$this->input_list[$name] = new SimplePHPFormInput($type, $name, $data, $data_validation_flags, $data_default, $text_title, $text_help, $text_error);
-	
+
 		// Special logic for checkbox types because browsers simply do not $_POST them if they are unchecked.
 		if($type == 'checkbox' && $this->state != self::STATE_NEW)
 		{
@@ -113,7 +113,7 @@ class SimplePHPForm
 		} if($this->state == self::STATE_SUCCESS) {
 			$output = '<div class="simplephpform_state_success">'.$this->message_success.'</div> <p>'.$this->message_success_2.'</p> <br />';
 		} if($this->state == self::STATE_FAIL) {
-			$output = '<div class="simplephpform_state_fail">'.$this->message_fail.'</div>';			
+			$output = '<div class="simplephpform_state_fail">'.$this->message_fail.'</div>';
 		} if($this->state == self::STATE_ERROR) {
 			$output = '<div class="simplephpform_state_fail">'.$this->message_error.'</div>';
 		} if($this->state == self::STATE_DUPLICATE) {
@@ -134,14 +134,14 @@ class SimplePHPForm
 		if($name == '')
 		{
 			$output = '';
-			
+
 			$output .= $this->DisplayState();
 			$output .= '<form method="post" action="'.$this->url_action.'" class="simplephpform">';
 			foreach($this->input_list as $input)
 				$output .= $this->Display($input->name)."\n";
 			$output .= '<input type="submit" value="Submit Form" class="simplephpform_submit" />';
 			$output .= '</form>';
-			
+
 			return $output;
 		}
 
@@ -150,12 +150,17 @@ class SimplePHPForm
 		{
 			$output = '';
 			$type = strtolower(trim($this->input_list[$name]->type));
-			
+			if($this->input_list[$name]->state == self::STATE_FAIL) {
+				$output .= '<div class="form-group has-error">';
+			} else {
+				$output .= '<div class="form-group">';
+			}
+
 			if($type == 'textarea') // Text area.
 			{
-				$output .= '<div class="simplephpform_title">'.$this->input_list[$name]->text_title.'</div>'."\n";
-				$output .= '<textarea name="simplephpform_'.$this->input_list[$name]->name.'" rows="'.$this->input_list[$name]->rows.'" cols="'.$this->input_list[$name]->columns.'">'.$this->input_list[$name]->data.'</textarea>'."\n";
-				
+				$output .= '<div class="simplephpform_title"><label class="control-label">'.$this->input_list[$name]->text_title.'</label></div>'."\n";
+				$output .= '<textarea class="form-control" name="simplephpform_'.$this->input_list[$name]->name.'" rows="'.$this->input_list[$name]->rows.'" cols="'.$this->input_list[$name]->columns.'">'.$this->input_list[$name]->data.'</textarea>'."\n";
+
 				// Helper or error message?
 				if($this->input_list[$name]->state != self::STATE_FAIL && $this->input_list[$name]->text_error != NULL)
 					$output .= '<div class="simplephpform_error">'.$this->input_list[$name]->text_error.'</div>'."\n";
@@ -164,9 +169,9 @@ class SimplePHPForm
 			}
 			else if($type == 'dropdown') // Drop down menu.
 			{
-				$output .= '<div class="simplephpform_title">'.$this->input_list[$name]->text_title.'</div>'."\n";
-				$output .= '<select name="simplephpform_'.$this->input_list[$name]->name.'">'."\n";
-				
+				$output .= '<div class="simplephpform_title"><label class="control-label">'.$this->input_list[$name]->text_title.'</label></div>'."\n";
+				$output .= '<select class="form-control" name="simplephpform_'.$this->input_list[$name]->name.'">'."\n";
+
 				foreach($this->input_list[$name]->dropdown_entries as $drop_down_value => $drop_down_name)
 				{
 					if($this->input_list[$name]->data == $drop_down_value)
@@ -174,9 +179,9 @@ class SimplePHPForm
 					else
 						$output .= '<option value="'.$drop_down_value.'">'.$drop_down_name.'</option>'."\n";
 				}
-					
+
 				$output .= '</select>'."\n";
-				
+
 				// Helper or error message?
 				if($this->input_list[$name]->state == self::STATE_FAIL)
 					$output .= '<div class="simplephpform_error">'.$this->input_list[$name]->text_error.'</div>'."\n";
@@ -186,7 +191,7 @@ class SimplePHPForm
 			else if($type == 'radio') // Radio button.
 			{
 				$output .= '<div class="simplephpform_title">'.$this->input_list[$name]->text_title.'</div><div class="simplephpform_radiobox">'."\n";
-				
+
 				foreach($this->input_list[$name]->radio_entries as $radio_name => $radio_value)
 				{
 					if($this->input_list[$name]->data == $radio_value)
@@ -211,7 +216,7 @@ class SimplePHPForm
 					$output .= '<label><input type="'.$this->input_list[$name]->type.'" name="simplephpform_'.$this->input_list[$name]->name.'" checked="checked" />'.$this->input_list[$name]->text_title."</label>\n";
 				else
 					$output .= '<label><input type="'.$this->input_list[$name]->type.'" name="simplephpform_'.$this->input_list[$name]->name.'" />'.$this->input_list[$name]->text_title."</label>\n";
-				
+
 				$output .= '</div>';
 			}
 			else if($type == 'hidden') // Hidden type, for metadata, etc.
@@ -220,20 +225,21 @@ class SimplePHPForm
 			}
 			else // Default. Textbox, password, etc.
 			{
-				$output .= '<div class="simplephpform_title">'.$this->input_list[$name]->text_title.'</div>'."\n";
+				$output .= '<div class="simplephpform_title"><label class="control-label">'.$this->input_list[$name]->text_title.'</label></div>'."\n";
 
-				$output .= '<label><input type="'.$this->input_list[$name]->type.'" name="simplephpform_'.$this->input_list[$name]->name.'" value="'.$this->input_list[$name]->data.'" />'."\n";
-			
+				$output .= '<label><input class="form-control" type="'.$this->input_list[$name]->type.'" name="simplephpform_'.$this->input_list[$name]->name.'" value="'.$this->input_list[$name]->data.'" />'."\n";
+
 				if($this->input_list[$name]->state == self::STATE_FAIL)
 					$output .= '<div class="simplephpform_error">'.$this->input_list[$name]->text_error.'</div>'."\n";
 				else if($this->input_list[$name]->text_help != NULL)
 					$output .= '<div class="simplephpform_help">'.$this->input_list[$name]->text_help.'</div>'."\n";
 
 				$output .= '</label>';
-			}	
+			}
+			$output .= '</div>';
 
 			$output .= '<div class="simplephpform_clear"></div>';
-			
+
 			return $output;
 		}
 	}
@@ -256,7 +262,7 @@ class SimplePHPForm
 		// Was this form submitted? Or is this page new?
 		if($this->state == self::STATE_NEW)
 			return false; // Invalid by default.
-		
+
 		// Set state as successfull first, then run validation test gauntlet ...
 		$this->state = self::STATE_SUCCESS;
 
@@ -270,20 +276,20 @@ class SimplePHPForm
 				if(!empty($input->data_validation_flags[$i]))
 				{
 					// Sanitize flag by stripping whitespace, and making lowercase.
-					$flag = strtolower(trim($input->data_validation_flags[$i])); 
-					
+					$flag = strtolower(trim($input->data_validation_flags[$i]));
+
 					// *** If we have a test for this flag, run it! ***
-					
+
 					// Test: Is the entry required?
 					if($flag == 'required')
 						if(!$this->ValidateExists($input->data))
 							$input->state = self::STATE_FAIL;
-							
+
 					// Test: Is the entry an email?
 					if($flag == 'email')
 						if(!$this->ValidateEmail($input->data))
 							$input->state = self::STATE_FAIL;
-							
+
 					// Test: Is the entry a phone number?
 					if($flag == 'phone')
 						if(!$this->ValidatePhone($input->data))
@@ -296,13 +302,13 @@ class SimplePHPForm
 
 					// Process multi-part flags.
 					$flag_parts = explode(' ', $flag);
-					
+
 					// Test: Is there a max string length?
 					if($flag_parts[0] == 'lengthmax')
 						if(isset($flag_parts[1]))
 							if(!$this->ValidateLengthMax($input->data, $flag_parts[1]))
 								$input->state = self::STATE_FAIL;
-					
+
 					// Test: Is there a min string length?
 					if($flag_parts[0] == 'lengthmin')
 						if(isset($flag_parts[1]))
@@ -314,25 +320,25 @@ class SimplePHPForm
 						if(isset($flag_parts[1]))
 							if(!$this->ValidateSizeMax($input->data, $flag_parts[1]))
 								$input->state = self::STATE_FAIL;
-					
+
 					// Test: Is there a min number size?
 					if($flag_parts[0] == 'sizemin')
 						if(isset($flag_parts[1]))
 							if(!$this->ValidateSizeMin($input->data, $flag_parts[1]))
-								$input->state = self::STATE_FAIL;	
+								$input->state = self::STATE_FAIL;
 
 				}
 		}
-		
+
 		// Did ALL individual input entries validate successfully? If no, set form state to fail.
 		foreach($this->input_list as $input)
 			if($input->state == self::STATE_FAIL)
 				$this->state = self::STATE_FAIL;
-				
+
 		// No input entries? Also fail.
 		if(count($this->input_list) < 1)
 			$this->state = self::STATE_FAIL;
-	
+
 		if($this->state == self::STATE_SUCCESS)
 			return true;
 		else
@@ -461,17 +467,17 @@ class SimplePHPFormInput
 	var $data_default = '';
 	var $data_validation_flags = array();
 	var $state = SimplePHPForm::STATE_NEW;
-	
+
 	var $text_title = '';
 	var $text_help = '';
 	var $text_error = '';
-	
+
 	// Special variables used for specific input types.
 	var $rows = 3;
 	var $columns = 30;
 	var $dropdown_entries = array();
 	var $radio_entries = array();
-	
+
 	function __construct($type, $name, $data, $data_validation_flags, $data_default, $text_title, $text_help, $text_error)
 	{
 		$this->type = $type;
@@ -479,7 +485,7 @@ class SimplePHPFormInput
 		$this->data = $data;
 		$this->data_default = $data_default;
 		$this->data_validation_flags = $data_validation_flags;
-		
+
 		$this->text_title = $text_title;
 		$this->text_help = $text_help;
 		$this->text_error = $text_error;
@@ -494,18 +500,18 @@ class SimplePHPFormInput
 }
 
 // For PHP < 5.5.0
-if (!function_exists('boolval')) 
+if (!function_exists('boolval'))
 {
-	function boolval($in) 
+	function boolval($in)
 	{
 		$out = false;
-		
+
 		if(is_string($in))
 			$in = strtolower($in);
-		
+
 		if (in_array($in, array('false', 'no', 'n', '0', 'off', false, 0), true) || !$in)
 			$out = false;
-		    
+
 		if (in_array($in, array('true', 'yes', 'y', '1', 'on', true, 1), true))
 			$out = true;
 
