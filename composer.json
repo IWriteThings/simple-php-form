@@ -1,5 +1,5 @@
 {
-	"name": "gnat/simple-php-form",
+	"name": "iwritethings/simple-php-form",
 	"type": "library",
 	"description": "Automatically generate and handle input forms in PHP.",
 	"keywords": ["form", "forms", "input", "email", "feedback", "response", "validation", "helpers", "warnings"],
