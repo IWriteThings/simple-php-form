@@ -170,7 +170,7 @@ class SimplePHPForm
 			else if($type == 'dropdown') // Drop down menu.
 			{
 				$output .= '<div class="simplephpform_title"><label class="control-label">'.$this->input_list[$name]->text_title.'</label></div>'."\n";
-				$output .= '<select class="form-control" name="simplephpform_'.$this->input_list[$name]->name.'">'."\n";
+				$output .= '<select class="form-control chosen-select" name="simplephpform_'.$this->input_list[$name]->name.'">'."\n";
 
 				foreach($this->input_list[$name]->dropdown_entries as $drop_down_value => $drop_down_name)
 				{
