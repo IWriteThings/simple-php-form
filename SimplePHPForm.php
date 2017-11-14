@@ -139,7 +139,7 @@ class SimplePHPForm
 			$output .= '<form method="post" action="'.$this->url_action.'" class="simplephpform">';
 			foreach($this->input_list as $input)
 				$output .= $this->Display($input->name)."\n";
-			$output .= '<input type="submit" value="Submit Form" class="simplephpform_submit" />';
+			$output .= '<input type="submit" value="Submit Form" class="btn btn-primary simplephpform_submit" />';
 			$output .= '</form>';
 
 			return $output;
